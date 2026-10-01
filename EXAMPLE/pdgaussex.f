@@ -51,7 +51,7 @@
 *     .. Local Scalars ..
       INTEGER            IAM, ICTXT, IL, INFO, JL, LIWORK, LLDA,
      $                   LLDB, LWORK, MYCOL, MYROW, NP, NPROCS, NQ,
-     $                   NQRHS, NPROW0, NPCOL0
+     $                   NPROW0, NPCOL0
       DOUBLE PRECISION   ANORM, EPS, RCOND, RESID, RNORM, T0, T1, T2,
      $                   T3, T4, XNORM
 *     ..
@@ -102,7 +102,6 @@
 *
       NP = NUMROC( N, NB, MYROW, 0, NPROW )
       NQ = NUMROC( N, NB, MYCOL, 0, NPCOL )
-      NQRHS = NUMROC( 1, NB, MYCOL, 0, NPCOL )
       LLDA = MAX( 1, NP )
       LLDB = MAX( 1, NP )
 *
@@ -180,6 +179,11 @@
      $              1, DESCB, INFO )
       CALL BLACS_BARRIER( ICTXT, 'All' )
       T3 = DWALLTIME00()
+      IF( INFO.NE.0 ) THEN
+         IF( IAM.EQ.0 )
+     $      WRITE( *, FMT = 9989 ) 'PDGETRS', INFO
+         GO TO 50
+      END IF
 *
 *     Estimate the reciprocal condition number of A
 *
@@ -191,6 +195,11 @@
       CALL PDGECON( '1', N, A, 1, 1, DESCA, ANORM, RCOND, WORK, LWORK,
      $              IWORK, LIWORK, INFO )
       DEALLOCATE( WORK, IWORK )
+      IF( INFO.NE.0 ) THEN
+         IF( IAM.EQ.0 )
+     $      WRITE( *, FMT = 9989 ) 'PDGECON', INFO
+         GO TO 50
+      END IF
 *
 *     Re-assemble A and compute r = b - A*x with b = ones
 *
@@ -253,6 +262,7 @@
      $        'not meaningful.', /'Decrease SIGMA or increase LAMBDA.' )
  9991 FORMAT( /'The answer is correct (backward stable solve).' )
  9990 FORMAT( /'The answer is suspicious.' )
+ 9989 FORMAT( A, ' failed with INFO = ', I8 )
 *
 *     End of PDGAUSSEX
 *
