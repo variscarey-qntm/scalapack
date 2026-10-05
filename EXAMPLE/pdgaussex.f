@@ -34,13 +34,15 @@
 *     machine precision, decrease SIGMA or add a regularization
 *     LAMBDA > 0 to the diagonal.
 *
+*     N and the (square) block size NB may be given on the command
+*     line:  xdgaussex [N [NB]]   (defaults: N = 80000, NB = 20000).
+*
 *     Run with at least NPROW*NPCOL (= 16) MPI processes, e.g.
 *        mpirun -np 16 ./xdgaussex
 *
 *     .. Parameters ..
-      INTEGER            N, NB, NPROW, NPCOL
-      PARAMETER          ( N = 80000, NB = 20000, NPROW = 4,
-     $                     NPCOL = 4 )
+      INTEGER            NPROW, NPCOL
+      PARAMETER          ( NPROW = 4, NPCOL = 4 )
       DOUBLE PRECISION   SIGMA, LAMBDA
       PARAMETER          ( SIGMA = 0.01D+0, LAMBDA = 0.0D+0 )
       INTEGER            DLEN_
@@ -51,7 +53,8 @@
 *     .. Local Scalars ..
       INTEGER            IAM, ICTXT, IL, INFO, JL, LIWORK, LLDA,
      $                   LLDB, LWORK, MYCOL, MYROW, NP, NPROCS, NQ,
-     $                   NPROW0, NPCOL0
+     $                   NPROW0, NPCOL0, N, NB, ISTAT
+      CHARACTER*32       ARG
       DOUBLE PRECISION   ANORM, EPS, RCOND, RESID, RNORM, T0, T1, T2,
      $                   T3, T4, XNORM
 *     ..
@@ -77,9 +80,26 @@
       EXTERNAL           DWALLTIME00, INDXL2G, NUMROC, PDLAMCH, PDLANGE
 *     ..
 *     .. Intrinsic Functions ..
-      INTRINSIC          DBLE, INT, MAX
+      INTRINSIC          COMMAND_ARGUMENT_COUNT, DBLE,
+     $                   GET_COMMAND_ARGUMENT, INT, MAX
 *     ..
 *     .. Executable Statements ..
+*
+      N = 80000
+      NB = 20000
+      ISTAT = 0
+      IF( COMMAND_ARGUMENT_COUNT().GE.1 ) THEN
+         CALL GET_COMMAND_ARGUMENT( 1, ARG )
+         READ( ARG, *, IOSTAT = ISTAT ) N
+      END IF
+      IF( ISTAT.EQ.0 .AND. COMMAND_ARGUMENT_COUNT().GE.2 ) THEN
+         CALL GET_COMMAND_ARGUMENT( 2, ARG )
+         READ( ARG, *, IOSTAT = ISTAT ) NB
+      END IF
+      IF( ISTAT.NE.0 .OR. N.LT.1 .OR. NB.LT.1 ) THEN
+         WRITE( *, FMT = 9988 )
+         STOP
+      END IF
 *
       CALL BLACS_PINFO( IAM, NPROCS )
       IF( NPROCS.LT.NPROW*NPCOL ) THEN
@@ -262,6 +282,7 @@
      $        'not meaningful.', /'Decrease SIGMA or increase LAMBDA.' )
  9991 FORMAT( /'The answer is correct (backward stable solve).' )
  9990 FORMAT( /'The answer is suspicious.' )
+ 9988 FORMAT( 'Usage: xdgaussex [N [NB]]  (N, NB positive integers)' )
  9989 FORMAT( A, ' failed with INFO = ', I8 )
 *
 *     End of PDGAUSSEX
