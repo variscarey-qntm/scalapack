@@ -4,12 +4,13 @@ TESTOBJS = psscaex.o pdscaexinfo.o
 TESTOBJD = pdscaex.o pdscaexinfo.o
 TESTOBJC = pcscaex.o pdscaexinfo.o
 TESTOBJZ = pzscaex.o pdscaexinfo.o
+TESTOBJG = pdgaussex.o
 
-all: pdscaex pcscaex pzscaex psscaex
+all: pdscaex pcscaex pzscaex psscaex pdgaussex
 
 single: psscaex
 
-double: pdscaex
+double: pdscaex pdgaussex
 
 complex: pcscaex
 
@@ -27,8 +28,12 @@ pcscaex: $(TESTOBJC)
 pdscaex: $(TESTOBJD)
 	$(FCLOADER) $(FCLOADFLAGS) -o xdscaex $(TESTOBJD) ../$(SCALAPACKLIB) $(LIBS)
 
+pdgaussex: $(TESTOBJG)
+	$(FCLOADER) $(FCLOADFLAGS) -o xdgaussex $(TESTOBJG) ../$(SCALAPACKLIB) $(LIBS)
+
 clean :
-	rm -f $(TESTOBJS) $(TESTOBJD) $(TESTOBJZ) $(TESTOBJC) xsscaex xzscaex xcscaex xdscaex
+	rm -f $(TESTOBJS) $(TESTOBJD) $(TESTOBJZ) $(TESTOBJC) $(TESTOBJG) xsscaex xzscaex xcscaex xdscaex \
+	      xdgaussex
 
 .f.o : ; $(FC) -c $(FCFLAGS) $*.f
 
