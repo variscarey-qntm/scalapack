@@ -158,6 +158,28 @@ are already written with the assumption that an integer fits into memory
 occupied by a real number, which is mostly not true for combination of default
 Fortran real numbers and long integers.
 
+BLACS MPI packing diagnostics
+-----------------------------
+
+When MPI_Pack or MPI_Pack_size returns an error, BLACS reports the MPI error
+code and text, BLACS/ScaLAPACK context, process grid coordinates, active scope
+and rank, datatype handle bytes, and source location to stderr before calling
+MPI_Abort on MPI_COMM_WORLD. Packing errors also report input/output addresses,
+output buffer capacity in bytes, outstanding operations, and initial packing
+position. A failed sizing call has no valid packed size or allocated buffer;
+BLACS stops before using that undefined size.
+
+To enable these diagnostics, set MPI_ERRORS_RETURN on the MPI communicator
+used to create the BLACS grid before grid creation (for the default system
+context, MPI_COMM_WORLD). BLACS-created communicators inherit this handler.
+BLACS does not change application error handlers. With MPI_ERRORS_ARE_FATAL,
+MPI may terminate the job before BLACS can report the returned error.
+
+The datatype handle is printed as raw bytes without querying it, since the
+datatype itself may be invalid. Buffer contents are not printed. These checks
+are enabled even when BlacsDebugLvl is zero; they diagnose fatal errors, not
+provide recovery.
+
 ScaLAPACK Library Versioning
 ----------------------
 

@@ -15,7 +15,7 @@ static void BI_PackError(BLACSCONTEXT *ctxt, char *routine, MpiInt info,
                 ctxt->scp == &ctxt->ascp ? 'a' : 'p';
 
    if (MPI_Error_string(info, message, &length) != MPI_SUCCESS)
-      length = 0;
+      length = snprintf(message, sizeof(message), "MPI error text unavailable");
    fprintf(stderr,
            "BLACS ERROR: %s failed (MPI error %d): %.*s\n"
            "Contxt=%ld, pnum=%ld, grid=%ldx%ld, coordinates={%ld,%ld}, "

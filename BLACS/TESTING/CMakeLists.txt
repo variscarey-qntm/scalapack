@@ -1,3 +1,30 @@
+add_executable(xPackDiagnostics pack_diagnostics.c)
+target_link_libraries(xPackDiagnostics scalapack MPI::MPI_C)
+
+foreach(mode success reuse zero)
+  add_test(NAME blacs_pack_${mode}
+    COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${MPIEXEC_PREFLAGS}
+            $<TARGET_FILE:xPackDiagnostics> ${mode} ${MPIEXEC_POSTFLAGS})
+endforeach()
+
+foreach(mode size pack reuse-error truncate error-string)
+  if(mode STREQUAL "size")
+    set(operation MPI_Pack_size)
+  else()
+    set(operation MPI_Pack)
+  endif()
+  add_test(NAME blacs_pack_${mode}
+    COMMAND ${CMAKE_COMMAND}
+      "-DMPIEXEC=${MPIEXEC}"
+      "-DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}"
+      "-DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}"
+      "-DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS}"
+      "-DTEST_PROG=$<TARGET_FILE:xPackDiagnostics>"
+      "-DMODE=${mode}"
+      "-DOPERATION=${operation}"
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/pack_diagnostics.cmake)
+endforeach()
+
 if(NOT (BUILD_SINGLE AND BUILD_DOUBLE AND BUILD_COMPLEX AND BUILD_COMPLEX16))
   return()
 endif()
