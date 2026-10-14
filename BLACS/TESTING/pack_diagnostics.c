@@ -25,6 +25,11 @@ int MPI_Pack(const void *input, int count, MPI_Datatype datatype,
              void *output, int size, int *position, MPI_Comm comm)
 {
    pack_calls++;
+   if (!strcmp(mode, "truncate"))
+   {
+      *position = -1;
+      return MPI_ERR_TRUNCATE;
+   }
    if (!strcmp(mode, "pack") || !strcmp(mode, "reuse-error") ||
        !strcmp(mode, "error-string"))
    {
