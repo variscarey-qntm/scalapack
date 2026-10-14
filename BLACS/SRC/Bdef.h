@@ -129,6 +129,7 @@ typedef void (*SDRVPTR)(BLACSCONTEXT *, Int, Int, BLACBUFF *);
 void BI_BlacsWarn(Int ConTxt, Int line, char *file, char *form, ...);
 void BI_BlacsErr(Int ConTxt, Int line, char *file, char *form, ...);
 Int BI_ContxtNum(BLACSCONTEXT *ctxt);
+MpiInt BI_PackSize(BLACSCONTEXT *ctxt, MPI_Datatype Dtype, Int line, char *file);
 void BI_TransDist(BLACSCONTEXT *ctxt, char scope, Int m, Int n, Int *rA,
                   Int *cA, Int ldrc, BI_DistType *dist, Int rdest, Int cdest);
 void BI_dmvcopy(Int m, Int n, double *A, Int lda, double *buff);

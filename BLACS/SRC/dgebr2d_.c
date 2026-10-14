@@ -75,7 +75,7 @@ F_VOID_FUNC dgebr2d_(Int *ConTxt, F_CHAR scope, F_CHAR top, Int *m, Int *n,
    BLACBUFF *bp=NULL;
    SDRVPTR send;
    MPI_Datatype MatTyp;
-   Int length, src, tlda, error, one=1;
+   Int length, src, tlda, error;
    char ttop, tscope;
    extern BLACBUFF BI_AuxBuff, *BI_ActiveQ;
 
@@ -153,7 +153,7 @@ F_VOID_FUNC dgebr2d_(Int *ConTxt, F_CHAR scope, F_CHAR top, Int *m, Int *n,
    else
    {
       send = BI_Asend;
-      error=MPI_Pack_size(one, MatTyp, ctxt->scp->comm, &length);
+      length = BI_PackSize(ctxt, MatTyp, __LINE__, __FILE__);
       bp = BI_GetBuff(length);
       bp->N = length;
       bp->dtype = MPI_PACKED;
